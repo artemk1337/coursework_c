@@ -1,2 +1,0 @@
-language = "bash"
-run = "clear & valgrind ./lem-in < maps/multiple_ways/four_ways"
