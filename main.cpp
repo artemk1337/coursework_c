@@ -96,17 +96,17 @@ class Room
 class Solutions
 {
 	private:
-		vector<int*>	best_sol;
-		vector<int*>	tmp_sol;
+		vector<vector<int>>	best_sol;
+		vector<vector<int>>	tmp_sol;
 	
 	public:
 		int			getSizeBestSol(void) const {return best_sol.size();}
-		int			*getOneBestWay(int idx) const {return best_sol[idx];}
+		vector<int>	getOneBestWay(int idx) const {return best_sol[idx];}
 		int			getSizeTmpSol(void) const {return tmp_sol.size();}
-		int			*getOneTmpWay(int idx) const {return tmp_sol[idx];}
+		vector<int>	getOneTmpWay(int idx) const {return tmp_sol[idx];}
 
-		void		addWayBestSol(int *arr) {best_sol.push_back(arr);}
-		void		addWayTmpSol(int *arr) {tmp_sol.push_back(arr);}
+		void		addWayBestSol(vector<int> vec) {best_sol.push_back(vec);}
+		void		addWayTmpSol(vector<int> vec) {tmp_sol.push_back(vec);}
 
 		void		clearBestSol(void) {best_sol.clear();}
 		void		clearTmpSol(void) {tmp_sol.clear();}
@@ -210,23 +210,19 @@ void	prints_sol(void)
 {
 	int i, k;
 
-	cout << g_lemin.getSizeBestSol() << endl;
 	cout << "Best sol:" << endl;
 	for (i=0; i<g_lemin.getSizeBestSol(); i++)
 	{
-		k = 0;
-		while (g_lemin.getOneBestWay(i)[k])
-			cout << g_lemin.getOneBestWay(i)[k++] << '-';
+		for (k=0; k<g_lemin.getOneBestWay(i).size(); k++)
+			cout << g_lemin.getOneBestWay(i)[k] << '-';
 		cout << endl;
 	}
 	cout << endl;
 	cout << "\nTmp sol:" << endl;
-	for (i=0; i<g_lemin.getSizeBestSol(); i++)
+	for (i=0; i<g_lemin.getSizeTmpSol(); i++)
 	{
-		k = 0;
-		cout << g_lemin.getOneTmpWay(0)[0] << endl;
-		while (g_lemin.getOneTmpWay(i)[k])
-			cout << g_lemin.getOneTmpWay(i)[k++] << '-';
+		for (k=0; k<g_lemin.getOneTmpWay(i).size(); k++)
+			cout << g_lemin.getOneTmpWay(i)[k] << '-';
 		cout << endl;
 	}
 	cout << endl;
@@ -460,33 +456,27 @@ void	split_room(int idx_curr, int idx_prev, int idx_next)
 			neigh_from_neigh->setWeight(-1);
 		}
 	}
+	g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).addNeigh(idx_prev);
+	g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).getAddrNeigh(g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).getNeighsSize()-1).setWeight(-1);
 }
 
 void	create_solution_and_split_rooms(void)
 {
-	int		idx;
-	int		idx_next = 0;
-	int		len_way = 0;
-	int		*way;
+	int			idx;
+	int			idx_next = 0;
+	int			len_way = 0;
+	vector<int>	way;
 
 	idx = g_lemin.getIdxEnd();
 	while (idx != g_lemin.getIdxStart()){
-		len_way++;
-		idx = g_lemin.getRoom(idx).getPrevRoomIdx();
-	}
-	len_way++;
-	way = new int[len_way];
-	idx = g_lemin.getIdxEnd();
-	while (idx != g_lemin.getIdxStart()){
-		cout << idx << endl;
 		if (idx != g_lemin.getIdxEnd())
 			split_room(idx, g_lemin.getRoom(idx).getPrevRoomIdx(), idx_next);
-		way[--len_way] = idx;
+		way.push_back(idx);
 		idx_next = idx;
 		idx = g_lemin.getRoom(idx).getPrevRoomIdx();
 	}
-	way[--len_way] = idx;
-	cout << way[1] << endl;
+	way.push_back(idx);
+	reverse(way.begin(), way.end());
 	g_lemin.addWayTmpSol(way);
 }
 
@@ -506,7 +496,7 @@ int main(int argc, char** argv) {
 	// print_ants();
 	print_rooms();
 	// print_neighs();
-	// prints_sol();
+	prints_sol();
 
 }
 
