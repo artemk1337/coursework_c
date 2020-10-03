@@ -1,4 +1,21 @@
-#include "lemin.h"
+#include <climits>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <regex>
+
+#define CROSS_WAY -1
+#define OKAY_WAY 0
+
+using namespace std;
+
+class Room;
+class Neigh;
+class Lemin;
+class FileReader;
+
+
+
 
 
 void ErrorExit(string msg)
@@ -8,17 +25,28 @@ void ErrorExit(string msg)
 }
 
 
+
+
+
 class Neigh
 {
 	private:
-		int weight = 0;
-		int num_next_room = 0;
+		int weight = 1;
+		int idx_next_room = 0;
 		int exist = 1;
 		int global_exist = 1;
-	public:
-		Neigh(int num_next_room) {this->num_next_room = num_next_room;}
 
-		int		getIdxNextRoom(void) const {return num_next_room;}
+	public:
+		Neigh(int num_next_room) {this->idx_next_room = num_next_room;}
+
+		int		getIdxNextRoom(void) const {return idx_next_room;}
+		void	setIdxNextRoom(int idx_next_room) {this->idx_next_room = idx_next_room;}
+		int		getWeight(void) const {return weight;}
+		void	setWeight(int weight) {this->weight = weight;}
+		int		getExist(void) const {return exist;}
+		void	setExist(int exist) {this->exist = exist;}
+		int		getGlobalExist(void) const {return global_exist;}
+		void	setGlobalExist(int global_exist) {this->global_exist = global_exist;}
 };
 
 
@@ -28,9 +56,12 @@ class Room
 		vector<Neigh>	neighs;
 		int				num_ant = 0;
 		string			name;
+
+		int				idx_out = -1;
+		int				idx_in = -1;
 		
 		int				min_weight = 0;
-		int				prev_room_idx = 0;
+		int				prev_room_idx = -1;
 
 	public:
 		string	getName(void) const {return name;}
@@ -38,7 +69,19 @@ class Room
 		int		getNumAnt(void) const {return num_ant;}
 		void	setNumAnt(int num_ant) {this->num_ant = num_ant;}
 
-		Neigh	getNeighs(int i) {return neighs[i];}
+		int		getIdxOut(void) const {return idx_out;}
+		void	setIdxOut(int idx_out) {this->idx_out = idx_out;}
+		int		getIdxIn(void) const {return idx_in;}
+		void	setIdxIn(int idx_in) {this->idx_in = idx_in;}
+
+		int		getMinWeight(void) const {return min_weight;}
+		void	setMinWeight(int min_weight) {this->min_weight = min_weight;}
+		int		getPrevRoomIdx(void) const {return prev_room_idx;}
+		void	setPrevRoomIdx(int prev_room_idx)
+			{this->prev_room_idx = prev_room_idx;}
+
+		Neigh	getNeigh(int i) {return neighs[i];}
+		Neigh	&getAddrNeigh(int i) {return neighs[i];}
 		int		getNeighsSize(void) const {return neighs.size();}
 
 		Room(string name)
@@ -50,11 +93,29 @@ class Room
 
 };
 
+class Solutions
+{
+	private:
+		vector<int*>	best_sol;
+		vector<int*>	tmp_sol;
+	
+	public:
+		int			getSizeBestSol(void) const {return best_sol.size();}
+		int			*getOneBestWay(int idx) const {return best_sol[idx];}
+		int			getSizeTmpSol(void) const {return tmp_sol.size();}
+		int			*getOneTmpWay(int idx) const {return tmp_sol[idx];}
+
+		void		addWayBestSol(int *arr) {best_sol.push_back(arr);}
+		void		addWayTmpSol(int *arr) {tmp_sol.push_back(arr);}
+
+		void		clearBestSol(void) {best_sol.clear();}
+		void		clearTmpSol(void) {tmp_sol.clear();}
+};
 
 
 
 
-class Lemin
+class Lemin: public Solutions
 {
 	private:
 		int				ants = 0;
@@ -68,18 +129,18 @@ class Lemin
 
 		Room	getRoom(int i) {return rooms[i];}
 		Room	&getAddrRoom(int i) {return rooms[i];}
-		Room	getRoomStart(void) {if (start == -1) ErrorExit("No START-room") ;
-				return rooms[start - 1];}
-		Room	getRoomEnd(void) {if (end == -1) ErrorExit("No END-room");
-				return rooms[end - 1];}
+		int		getIdxStart(void) const {if (start == -1) ErrorExit("No START-room"); 
+					return start;}
+		int		getIdxEnd(void) const {if (end == -1) ErrorExit("No END-room"); 
+					return end;}
 		int		getSizeRooms(void) {return rooms.size();}
 
 		void	addRoom(Room room, int param) {
 			rooms.push_back(room);
 			if (param == 1)
-				start = rooms.size();
+				start = rooms.size() - 1;
 			else if (param == -1)
-				end = rooms.size();
+				end = rooms.size() - 1;
 			}
 
 		int		getIdxRoomByName(string name)
@@ -97,7 +158,89 @@ class Lemin
 Lemin g_lemin;
 
 
-class FileReader: public Lemin
+
+
+
+
+
+
+
+// <========== TESTs ==========> //
+
+void	print_neighs(void)
+{
+	int i, k;
+
+	for (i=0; i<g_lemin.getSizeRooms(); i++)
+	{
+		//cout << g_lemin.getRoom(i).getName() << ":" << endl;
+		for (k=0; k<g_lemin.getRoom(i).getNeighsSize(); k++)
+		{
+			cout << g_lemin.getRoom(i).getName();
+			cout << "-" << g_lemin.getRoom(g_lemin.getRoom(i).getNeigh(k).getIdxNextRoom()).getName() << endl;
+		}
+	}
+	cout << endl;
+}
+
+void	print_rooms(void)
+{
+	int i;
+
+	for (i=0; i<g_lemin.getSizeRooms(); i++)
+	{
+		cout << g_lemin.getRoom(i).getName();
+		if (g_lemin.getRoom(i).getPrevRoomIdx() > -1)
+			cout << "\tPrev: "<< g_lemin.getRoom(g_lemin.getRoom(i).getPrevRoomIdx()).getName();
+		else
+			cout << "\tPrev: "<< "None";
+		cout << "\tWeight: " << g_lemin.getRoom(i).getMinWeight() << endl;
+	}
+	cout << "Start: " << g_lemin.getRoom(g_lemin.getIdxStart()).getName() << endl;
+	cout << "End: " << g_lemin.getRoom(g_lemin.getIdxEnd()).getName() << endl;
+	cout << endl;
+}
+
+void	print_ants(void)
+{
+	cout << "Ants: " << g_lemin.getAnts() << '\n' << endl;
+}
+
+void	prints_sol(void)
+{
+	int i, k;
+
+	cout << g_lemin.getSizeBestSol() << endl;
+	cout << "Best sol:" << endl;
+	for (i=0; i<g_lemin.getSizeBestSol(); i++)
+	{
+		k = 0;
+		while (g_lemin.getOneBestWay(i)[k])
+			cout << g_lemin.getOneBestWay(i)[k++] << '-';
+		cout << endl;
+	}
+	cout << endl;
+	cout << "\nTmp sol:" << endl;
+	for (i=0; i<g_lemin.getSizeBestSol(); i++)
+	{
+		k = 0;
+		cout << g_lemin.getOneTmpWay(0)[0] << endl;
+		while (g_lemin.getOneTmpWay(i)[k])
+			cout << g_lemin.getOneTmpWay(i)[k++] << '-';
+		cout << endl;
+	}
+	cout << endl;
+}
+
+// <========== TESTs ==========> //
+
+
+
+
+
+// <===== Считывание из файла =====> //
+
+class FileReader
 {
 	private:
 		vector<string>	file_text;
@@ -117,7 +260,7 @@ class FileReader: public Lemin
 		int		getSizeVec(void) {return (file_text.size());}
 };
 
-
+// <===== Считывание из файла =====> //
 
 
 
@@ -140,6 +283,7 @@ vector<string>	spliter(string s, char delim) {
     return elems;
 }
 
+// <===== Разделение на подстроки =====> //
 
 
 
@@ -180,14 +324,25 @@ void	createNeigh(string s)
 		ErrorExit("Cant find exist rooms by name");
 }
 
+// <===== Создание комнат и соседей =====> //
 
-int main(int argc, char** argv) {
+
+
+
+
+// <========== Считывание файла ==========> //
+
+void	read_file(string filename)
+{
 	int i = 0;
 	int k = 0;
-	int	start_finish = 0;
-	FileReader	fread("example");
+	int start_finish = 0;
+	FileReader fread("example");
 
 	g_lemin.setAnts(stoi(fread.getValue(0)));
+	if (g_lemin.getAnts() < 1)
+		ErrorExit("Ants must be > 0");
+	i = 0;
 	while (++i < fread.getSizeVec())
 	{
 		if (fread.getValue(i) == "##start")
@@ -203,23 +358,156 @@ int main(int argc, char** argv) {
 			start_finish = 0;
 		}
 	}
+}
 
-	// print rooms
-	for (i=0; i<g_lemin.getSizeRooms(); i++)
-		cout << g_lemin.getRoom(i).getName() << endl;
-	cout << "Start: " << g_lemin.getRoomStart().getName() << endl;
-	cout << "End: " << g_lemin.getRoomEnd().getName() << endl;
-	// prints neighs
+// <========== Считывание файла ==========> //
+
+
+
+
+void	update_min_weight_and_prev_room(void)
+{
+	int i;
+	Room *tmproom;
 	for (i=0; i<g_lemin.getSizeRooms(); i++)
 	{
-		cout << g_lemin.getRoom(i).getName() << ":" << endl;
+		tmproom = &g_lemin.getAddrRoom(i);
+		if (g_lemin.getIdxStart() != i)
+			tmproom->setMinWeight(INT_MAX / 2);
+		else
+			tmproom->setMinWeight(0);
+		tmproom->setPrevRoomIdx(-1);
+	}
+}
 
-		for (k=0; k<g_lemin.getRoom(i).getNeighsSize(); k++)
+
+void	BellmanFord(void)
+{
+	int i, iisrc, n;
+	Room	*roomsrc;
+	Room	*roomdst;
+	Neigh	*neigh;
+	int chacnges;
+
+	for (i=0; i<g_lemin.getSizeRooms();i++)
+	{
+		chacnges = 0;
+		for (iisrc=0; iisrc<g_lemin.getSizeRooms();iisrc++)
 		{
-			cout << g_lemin.getRoom(i).getName();
-			cout << "-" << g_lemin.getRoom(g_lemin.getRoom(i).getNeighs(k).getIdxNextRoom()).getName() << endl;
+			roomsrc = &g_lemin.getAddrRoom(iisrc);
+			for (n=0; n<roomsrc->getNeighsSize(); n++)
+			{
+				neigh = &roomsrc->getAddrNeigh(n);
+				roomdst = &g_lemin.getAddrRoom(neigh->getIdxNextRoom());
+
+				if (iisrc != g_lemin.getIdxEnd() &&
+					neigh->getExist() &&
+					neigh->getGlobalExist() &&
+					roomsrc->getMinWeight() < INT_MAX / 2 &&
+					roomsrc->getMinWeight() + neigh->getWeight() < roomdst->getMinWeight())
+				{
+					chacnges++;
+					roomdst->setPrevRoomIdx(iisrc);
+					roomdst->setMinWeight(roomsrc->getMinWeight() + neigh->getWeight());
+				}
+			}
+		}
+		if (chacnges == 0)
+			return ;
+	}
+}
+
+
+void	split_room(int idx_curr, int idx_prev, int idx_next)
+{
+	stringstream	name;
+	int				i, ii;
+	Neigh			*neigh_from_curr, *neigh_from_neigh;
+
+	name << g_lemin.getRoom(idx_curr).getName() << "_in";
+	g_lemin.addRoom(Room(name.str()), 0);
+	g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).setPrevRoomIdx(idx_prev);
+	g_lemin.getAddrRoom(idx_curr).setIdxIn(g_lemin.getSizeRooms()-1);
+	g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).setIdxOut(idx_curr);
+
+	for (i=0; i<g_lemin.getRoom(idx_curr).getNeighsSize(); i++)
+	{
+		// прогоняем все связи из текущей комнаты
+		neigh_from_curr = &g_lemin.getAddrRoom(idx_curr).getAddrNeigh(i);
+		if (neigh_from_curr->getIdxNextRoom() != idx_next)
+		{
+			// ищем во всех связях соседа указатель на текущую комнату
+			ii = 0;
+			while (g_lemin.getRoom(neigh_from_curr->getIdxNextRoom()).getNeigh(ii).getIdxNextRoom() != idx_curr)
+				ii++;
+			neigh_from_neigh = &g_lemin.getAddrRoom(neigh_from_curr->getIdxNextRoom()).getAddrNeigh(ii);
+			if (neigh_from_curr->getIdxNextRoom() == idx_prev)
+			{
+				neigh_from_neigh->setExist(0);
+				neigh_from_curr->setIdxNextRoom(g_lemin.getAddrRoom(idx_curr).getIdxIn());
+				neigh_from_curr->setWeight(0);
+			}
+			neigh_from_neigh->setIdxNextRoom(g_lemin.getRoom(idx_curr).getIdxIn());
+		}
+		else
+		{
+			// ищем во всех связях соседа указатель на текущую комнату
+			ii = 0;
+			while (g_lemin.getRoom(neigh_from_curr->getIdxNextRoom()).getNeigh(ii).getIdxNextRoom() != idx_curr)
+				ii++;
+			neigh_from_neigh = &g_lemin.getAddrRoom(neigh_from_curr->getIdxNextRoom()).getAddrNeigh(ii);
+			neigh_from_curr->setExist(0);
+			neigh_from_neigh->setWeight(-1);
 		}
 	}
+}
+
+void	create_solution_and_split_rooms(void)
+{
+	int		idx;
+	int		idx_next = 0;
+	int		len_way = 0;
+	int		*way;
+
+	idx = g_lemin.getIdxEnd();
+	while (idx != g_lemin.getIdxStart()){
+		len_way++;
+		idx = g_lemin.getRoom(idx).getPrevRoomIdx();
+	}
+	len_way++;
+	way = new int[len_way];
+	idx = g_lemin.getIdxEnd();
+	while (idx != g_lemin.getIdxStart()){
+		cout << idx << endl;
+		if (idx != g_lemin.getIdxEnd())
+			split_room(idx, g_lemin.getRoom(idx).getPrevRoomIdx(), idx_next);
+		way[--len_way] = idx;
+		idx_next = idx;
+		idx = g_lemin.getRoom(idx).getPrevRoomIdx();
+	}
+	way[--len_way] = idx;
+	cout << way[1] << endl;
+	g_lemin.addWayTmpSol(way);
+}
+
+
+
+
+
+
+
+int main(int argc, char** argv) {
+
+	read_file("example");
+	update_min_weight_and_prev_room();
+	BellmanFord();
+	print_rooms();
+	create_solution_and_split_rooms();
+	// print_ants();
+	print_rooms();
+	// print_neighs();
+	// prints_sol();
+
 }
 
 
