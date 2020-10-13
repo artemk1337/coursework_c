@@ -16,16 +16,11 @@ class FileReader;
 
 
 
-
-
 void ErrorExit(string msg)
 {
 	cout << "ERROR: " << msg << endl;
     exit (1);
 }
-
-
-
 
 
 class Neigh
@@ -177,7 +172,7 @@ void	print_neighs(void)
 		for (k=0; k<g_lemin.getRoom(i).getNeighsSize(); k++)
 		{
 			cout << g_lemin.getRoom(i).getName();
-			cout << "-" << g_lemin.getRoom(g_lemin.getRoom(i).getNeigh(k).getIdxNextRoom()).getName() << endl;
+			cout << "-" << g_lemin.getRoom(g_lemin.getRoom(i).getNeigh(k).getIdxNextRoom()).getName() << "\tWeight: " << g_lemin.getRoom(i).getNeigh(k).getWeight() << endl;
 		}
 	}
 	cout << endl;
@@ -333,7 +328,7 @@ void	read_file(string filename)
 	int i = 0;
 	int k = 0;
 	int start_finish = 0;
-	FileReader fread("example");
+	FileReader fread(filename);
 
 	g_lemin.setAnts(stoi(fread.getValue(0)));
 	if (g_lemin.getAnts() < 1)
@@ -484,6 +479,17 @@ void	split_room(int idx_curr, int idx_prev, int idx_next)
 
 
 
+// <========== Восстановление комнат с переносом связей ==========> //
+
+void	repair_all_rooms()
+{
+
+}
+
+// <========== Восстановление комнат с переносом связей ==========> //
+
+
+
 // <========== Создание решение и прокладывание пути ==========> //
 
 int		create_solution_and_split_rooms(void)
@@ -496,10 +502,10 @@ int		create_solution_and_split_rooms(void)
 	idx = g_lemin.getIdxEnd();
 	while (idx != g_lemin.getIdxStart())
 	{
-		if (g_lemin.getRoom(idx).getIdxOut() > -1)
+		if (g_lemin.getRoom(idx).getIdxIn() > -1)
 		{
 			g_lemin.getAddrRoom(idx).getAddrNeigh(0).setGlobalExist(0);
-			return 1;
+			return (1);
 		}
 		idx = g_lemin.getRoom(idx).getPrevRoomIdx();
 	}
@@ -525,7 +531,7 @@ int		create_solution_and_split_rooms(void)
 
 int main(int argc, char** argv) {
 
-	read_file("example");
+	read_file("example1");
 	update_min_weight_and_prev_room();
 	BellmanFord();
 	if (g_lemin.getRoom(g_lemin.getIdxEnd()).getPrevRoomIdx() == -1)
@@ -533,11 +539,25 @@ int main(int argc, char** argv) {
 		cout << "No ways anymore" << endl;
 		return 0;
 	}
-	print_rooms();
-	create_solution_and_split_rooms();
-	// print_ants();
-	print_rooms();
+	// print_rooms();
 	// print_neighs();
+	if (!create_solution_and_split_rooms())
+		cout << "OK way" << endl;
+	else
+		cout << "BAD way" << endl;
+	BellmanFord();
+	if (g_lemin.getRoom(g_lemin.getIdxEnd()).getPrevRoomIdx() == -1)
+	{
+		cout << "No ways anymore" << endl;
+		return 0;
+	}
+	if (!create_solution_and_split_rooms())
+		cout << "OK way" << endl;
+	else
+		cout << "BAD way" << endl;
+	// print_ants();
+	// print_rooms();
+	print_neighs();
 	prints_sol();
 
 }
