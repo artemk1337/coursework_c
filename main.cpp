@@ -173,7 +173,7 @@ void	print_neighs(void)
 		for (k=0; k<g_lemin.getRoom(i).getNeighsSize(); k++)
 		{
 			cout << g_lemin.getRoom(i).getName();
-			cout << "-" << g_lemin.getRoom(g_lemin.getRoom(i).getNeigh(k).getIdxNextRoom()).getName() << "\tWeight: " << g_lemin.getRoom(i).getNeigh(k).getWeight() << endl;
+			cout << "-" << g_lemin.getRoom(g_lemin.getRoom(i).getNeigh(k).getIdxNextRoom()).getName() << "\tWeight: " << g_lemin.getRoom(i).getNeigh(k).getWeight() << "\tGlExist: " << g_lemin.getRoom(i).getNeigh(k).getGlobalExist() << endl;
 		}
 	}
 	cout << endl;
@@ -190,7 +190,8 @@ void	print_rooms(void)
 			cout << "\tPrev: "<< g_lemin.getRoom(g_lemin.getRoom(i).getPrevRoomIdx()).getName();
 		else
 			cout << "\tPrev: "<< "None";
-		cout << "\tWeight: " << g_lemin.getRoom(i).getMinWeight() << endl;
+		cout << "\tWeight: " << g_lemin.getRoom(i).getMinWeight();
+		cout << "\tIn/Out: " << g_lemin.getRoom(i).getIdxIn() << "/" << g_lemin.getRoom(i).getIdxOut() << endl;
 	}
 	cout << "Start: " << g_lemin.getRoom(g_lemin.getIdxStart()).getName() << endl;
 	cout << "End: " << g_lemin.getRoom(g_lemin.getIdxEnd()).getName() << endl;
@@ -382,6 +383,27 @@ void	update_min_weight_and_prev_room(void)
 // <========== Обновление весов и предыдущих комнат ==========> //
 
 
+// <========== Обновление весов связей ==========> //
+
+void	update_weight_links(void)
+{
+	int i, ii;
+
+	for (i=0; i<g_lemin.getSizeRooms(); i++)
+	{
+		for (ii=0; ii<g_lemin.getRoom(i).getNeighsSize(); ii++)
+		{
+			g_lemin.getAddrRoom(i).getAddrNeigh(ii).setWeight(1);
+			g_lemin.getAddrRoom(i).getAddrNeigh(ii).setExist(1);
+		}
+	}
+}
+
+// <========== Обновление весов связей ==========> //
+
+
+
+
 
 // <========== Беллман-Форд ==========> //
 
@@ -537,38 +559,43 @@ int		create_solution_and_split_rooms(void)
 
 void	repair_all_rooms()
 {
-	int		idx, i, ii, idx_in, idx_prev, idx_neigh;
+	int		idx, i, ii, idx_in, idx_prev, idx_neigh, exist;
 
 	ii = -1;
 	while (++ii<g_lemin.getSizeRooms() && g_lemin.getRoom(ii).getIdxOut() == -1)
 	{
+		exist = 1;
 		idx_in = g_lemin.getRoom(ii).getIdxIn();
 		// если есть раздвоение комнат
 		if (idx_in > -1)
 		{
 			idx_prev = g_lemin.getRoom(idx_in).getNeigh(0).getIdxNextRoom();
 			i = 0;
-			// ищем связь на комнату in
-			while (g_lemin.getAddrRoom(ii).getNeigh(i).getIdxNextRoom() != idx_in)
+			// ищем связь на комнату in из out
+			while (g_lemin.getRoom(ii).getNeigh(i).getIdxNextRoom() != idx_in)
 				i++;
 			if (!g_lemin.getRoom(idx_in).getNeigh(0).getGlobalExist())
-				g_lemin.getAddrRoom(ii).getNeigh(i).setGlobalExist(0);
-			// переносим связь
-			g_lemin.getAddrRoom(ii).getNeigh(i).setIdxNextRoom(idx_prev);
+				exist = 0;
+			// если путь пересекался, изменил глобальное существование связи
+			g_lemin.getAddrRoom(ii).getAddrNeigh(i).setGlobalExist(exist);
+			// переносим связь с in на prev из out
+			g_lemin.getAddrRoom(ii).getAddrNeigh(i).setIdxNextRoom(idx_prev);
 
 			i = 0;
-			// ищем связь на комнату in
-			while (g_lemin.getAddrRoom(idx_prev).getNeigh(i).getIdxNextRoom() != idx_in)
+			// ищем связь на комнату in из prev
+			while (g_lemin.getRoom(idx_prev).getNeigh(i).getIdxNextRoom() != idx_in)
 				i++;
-			if (!g_lemin.getRoom(idx_prev).getNeigh(0).getGlobalExist())
-				g_lemin.getAddrRoom(ii).getNeigh(i).setGlobalExist(0);
-			g_lemin.getAddrRoom(idx_prev).getNeigh(i).setIdxNextRoom(ii);
+			g_lemin.getAddrRoom(idx_prev).getAddrNeigh(i).setGlobalExist(exist);
+			g_lemin.getAddrRoom(idx_prev).getAddrNeigh(i).setIdxNextRoom(ii);
+
+			g_lemin.getAddrRoom(ii).setIdxIn(-1);
 			// связь удалим вместе с комнатой
 		
 			// перенос связий с комнаты in на out
 			for (i=0; i<g_lemin.getRoom(ii).getNeighsSize(); i++)
 			{
 				idx_neigh = g_lemin.getRoom(ii).getNeigh(i).getIdxNextRoom();
+				// если есть раздвоение комнаты
 				if (g_lemin.getRoom(idx_neigh).getIdxOut() != -1)
 					idx_neigh = g_lemin.getRoom(idx_neigh).getIdxOut();
 				idx_prev = 0;
@@ -584,34 +611,76 @@ void	repair_all_rooms()
 	// удаляем все комнаты in
 	while (ii < g_lemin.getSizeRooms())
 		g_lemin.delRoom(ii);
+	// восстанавливаем веса связей и существаование самих связей
+	update_weight_links();
 }
+
+
+
+void	repair_all_rooms2()
+{
+	int i, ii, iii, idx_out_room, idx_in_room, idx_prev_room;
+
+	for (i=0; i<g_lemin.getSizeRooms(); i++)
+	{
+		if (g_lemin.getRoom(i).getIdxIn() != -1)
+		{
+			idx_out_room = i;
+			idx_in_room = g_lemin.getRoom(i).getIdxIn();
+			idx_prev_room = g_lemin.getRoom(idx_in_room).getNeigh(0).getIdxNextRoom();
+			// cout << idx_out_room << idx_in_room << idx_prev_room << endl;
+
+			// перенесем связи с in на out
+
+		}
+	}
+}
+
 
 // <========== Восстановление комнат с переносом связей ==========> //
 
 
 
+
+void	alg(void)
+{
+	int	expect_ways, ways;
+
+	ways = 0;
+	for (expect_ways=1; 1; expect_ways++)
+	{
+		g_lemin.clearTmpSol();
+		ways = 0;
+		repair_all_rooms();
+		update_min_weight_and_prev_room();
+		// print_rooms();
+		// print_neighs();
+		while (ways != expect_ways)
+		{
+			update_min_weight_and_prev_room();
+			BellmanFord();
+			// если путей больше не существует, останавливаем алгоритм
+			if (g_lemin.getRoom(g_lemin.getIdxEnd()).getPrevRoomIdx() == -1)
+			{
+				cout << "No ways anymore" << endl;
+				return;
+			}
+			if (!create_solution_and_split_rooms())
+				ways++;
+			else
+				break ;
+		}
+		// здесь будет сравнение путей
+		// 
+		prints_sol();
+	}
+}
+
+
 int main(int argc, char** argv) {
 
 	read_file("example");
-	update_min_weight_and_prev_room();
-	BellmanFord();
-	if (g_lemin.getRoom(g_lemin.getIdxEnd()).getPrevRoomIdx() == -1)
-	{
-		cout << "No ways anymore" << endl;
-		return 0;
-	}
-	if (!create_solution_and_split_rooms())
-		cout << "OK way" << endl;
-	else
-		cout << "BAD way" << endl;
-	
-	update_min_weight_and_prev_room();
-	// print_ants();
-	print_rooms();
-	// print_neighs();
-	prints_sol();
-	repair_all_rooms();
-	print_rooms();
+	alg();
 }
 
 
