@@ -97,8 +97,13 @@ class Solutions
 	public:
 		int			getSizeBestSol(void) const {return best_sol.size();}
 		vector<int>	getOneBestWay(int idx) const {return best_sol[idx];}
+		vector<vector<int>>	&getAddrAllBestWays() {return best_sol;}
+		vector<vector<int>>	getAllBestWays() {return best_sol;}
+
 		int			getSizeTmpSol(void) const {return tmp_sol.size();}
 		vector<int>	getOneTmpWay(int idx) const {return tmp_sol[idx];}
+		vector<vector<int>>	&getAddrAllTmpWays() {return tmp_sol;}
+		vector<vector<int>>	getAllTmpWays() {return tmp_sol;}
 
 		void		addWayBestSol(vector<int> vec) {best_sol.push_back(vec);}
 		void		addWayTmpSol(vector<int> vec) {tmp_sol.push_back(vec);}
@@ -106,9 +111,6 @@ class Solutions
 		void		clearBestSol(void) {best_sol.clear();}
 		void		clearTmpSol(void) {tmp_sol.clear();}
 };
-
-
-
 
 class Lemin: public Solutions
 {
@@ -207,19 +209,18 @@ void	prints_sol(void)
 {
 	int i, k;
 
-	cout << "Best sol:" << endl;
+	cout << "\nBest sol:" << endl;
 	for (i=0; i<g_lemin.getSizeBestSol(); i++)
 	{
 		for (k=0; k<g_lemin.getOneBestWay(i).size(); k++)
-			cout << g_lemin.getOneBestWay(i)[k] << '-';
+			cout << g_lemin.getRoom(g_lemin.getOneBestWay(i)[k]).getName() << '-';
 		cout << endl;
 	}
-	cout << endl;
 	cout << "\nTmp sol:" << endl;
 	for (i=0; i<g_lemin.getSizeTmpSol(); i++)
 	{
 		for (k=0; k<g_lemin.getOneTmpWay(i).size(); k++)
-			cout << g_lemin.getRoom((g_lemin.getOneTmpWay(i)[k])).getName() << '-';
+			cout << g_lemin.getRoom(g_lemin.getOneTmpWay(i)[k]).getName() << '-';
 		cout << endl;
 	}
 	cout << endl;
@@ -383,9 +384,10 @@ void	update_min_weight_and_prev_room(void)
 // <========== Обновление весов и предыдущих комнат ==========> //
 
 
-// <========== Обновление весов связей ==========> //
 
-void	update_weight_links(void)
+// <========== Обновление весов связей + существование ==========> //
+
+void	update_links(void)
 {
 	int i, ii;
 
@@ -599,7 +601,7 @@ void	repair_all_rooms()
 				if (g_lemin.getRoom(idx_neigh).getIdxOut() != -1)
 					idx_neigh = g_lemin.getRoom(idx_neigh).getIdxOut();
 				idx_prev = 0;
-				// переносим связи. Если связь не найдена, эта комната приналежит к одному пути и связи нет.
+				// переносим связи. Если связь не найдено, эта комната приналежит к одному пути и связи нет.
 				while (idx_prev < g_lemin.getRoom(idx_neigh).getNeighsSize() && g_lemin.getRoom(idx_neigh).getNeigh(idx_prev).getIdxNextRoom() != idx_in)
 					idx_prev++;
 				if (idx_prev < g_lemin.getRoom(idx_neigh).getNeighsSize())
@@ -612,32 +614,93 @@ void	repair_all_rooms()
 	while (ii < g_lemin.getSizeRooms())
 		g_lemin.delRoom(ii);
 	// восстанавливаем веса связей и существаование самих связей
-	update_weight_links();
+	update_links();
 }
 
+// <========== Восстановление комнат с переносом связей ==========> //
 
 
-void	repair_all_rooms2()
-{
-	int i, ii, iii, idx_out_room, idx_in_room, idx_prev_room;
 
-	for (i=0; i<g_lemin.getSizeRooms(); i++)
+// <========== Сравнение путей ==========> //
+
+// сортировка путей
+void	sort_ways(){
+	if (g_lemin.getSizeTmpSol() > 1)
+		sort(g_lemin.getAddrAllTmpWays().begin(), g_lemin.getAddrAllTmpWays().end(), [](const vector<int> & a, const vector<int> & b){ return a.size() < b.size(); });
+	/*
+	if (g_lemin.getSizeBestSol() > 1)
+		sort(g_lemin.getAddrAllBestWays().begin(), g_lemin.getAddrAllBestWays().end(), [](const vector<int> & a, const vector<int> & b){ return a.size() < b.size(); });
+	*/
+}
+
+int		move_ants(vector<vector<int>> sol){
+	int	i, ii;
+	int	steps = 0;
+	int	len_ways[sol.size() + 1];
+	int	dist_ways[sol.size() + 1];
+	int	tmp = 0;
+	int	ants;
+
+	if (sol.size() > 0)
+		for (i=0; i<sol.size(); i++)
+			len_ways[i] = sol[i].size();
+	else
+		return (0);
+
+	for (i=0; i<sol.size(); i++)
 	{
-		if (g_lemin.getRoom(i).getIdxIn() != -1)
+		dist_ways[i] = len_ways[i] * i - tmp;
+		tmp += len_ways[i];
+	}
+
+	// перенес всех муравьев в стартовую комнату
+	g_lemin.getAddrRoom(g_lemin.getIdxStart()).setNumAnt(g_lemin.getAnts());
+	g_lemin.getAddrRoom(g_lemin.getIdxEnd()).setNumAnt(0);
+	while (g_lemin.getAddrRoom(g_lemin.getIdxEnd()).getNumAnt() != g_lemin.getAnts()){
+		// пробегаюсь списку путей
+		for (i=0; i<sol.size(); i++)
 		{
-			idx_out_room = i;
-			idx_in_room = g_lemin.getRoom(i).getIdxIn();
-			idx_prev_room = g_lemin.getRoom(idx_in_room).getNeigh(0).getIdxNextRoom();
-			// cout << idx_out_room << idx_in_room << idx_prev_room << endl;
-
-			// перенесем связи с in на out
-
+			// пробегаюсь по пути от конца до начала
+			for (ii=sol[i].size() - 1; ii>0; ii--)
+			{
+				if (ii == 1 && dist_ways[i] > g_lemin.getRoom(g_lemin.getIdxStart()).getNumAnt())
+					break ;
+				if (g_lemin.getRoom(sol[i][ii - 1]).getNumAnt() > 0)
+				{
+					g_lemin.getAddrRoom(sol[i][ii - 1]).setNumAnt(g_lemin.getRoom(sol[i][ii - 1]).getNumAnt() - 1);
+					g_lemin.getAddrRoom(sol[i][ii]).setNumAnt(g_lemin.getRoom(sol[i][ii]).getNumAnt() + 1);
+				}
+			}
 		}
+		//cout << g_lemin.getAddrRoom(g_lemin.getIdxEnd()).getNumAnt() << endl;
+		steps++;
+	}
+	g_lemin.getAddrRoom(g_lemin.getIdxStart()).setNumAnt(g_lemin.getAnts());
+	g_lemin.getAddrRoom(g_lemin.getIdxEnd()).setNumAnt(0);
+	return steps;
+}
+
+void	compare_ways(){
+	int	i;
+	int	ants;
+
+	sort_ways();
+
+	//move_ants(g_lemin.getAllTmpWays());
+	//exit(0);
+
+	if (g_lemin.getSizeBestSol() == 0 || move_ants(g_lemin.getAllBestWays()) > move_ants(g_lemin.getAllTmpWays()))
+	{
+		g_lemin.clearBestSol();
+		for (i=0; i<g_lemin.getSizeTmpSol(); i++)
+			g_lemin.addWayBestSol(g_lemin.getOneTmpWay(i));
 	}
 }
 
+// <========== Сравнение путей ==========> //
 
-// <========== Восстановление комнат с переносом связей ==========> //
+
+
 
 
 
@@ -668,19 +731,21 @@ void	alg(void)
 			if (!create_solution_and_split_rooms())
 				ways++;
 			else
-				break ;
+			{
+				g_lemin.clearTmpSol();
+				ways = 0;
+				repair_all_rooms();
+				update_min_weight_and_prev_room();
+			}
 		}
-		// здесь будет сравнение путей
-		// 
+		// сравнение путей; если новые пути лучше, используем их вместо старых
+		compare_ways();
 		prints_sol();
 	}
 }
 
 
 int main(int argc, char** argv) {
-
-	read_file("example");
+	read_file("gemerald");
 	alg();
 }
-
-
