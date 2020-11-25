@@ -3,4 +3,4 @@ git config --global user.name "artem"
 
 git add .
 git commit -m fix
-git push
+git push -f
