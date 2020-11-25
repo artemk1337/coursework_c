@@ -107,20 +107,36 @@ class Lemin: public Solutions
 		int				end = -1; // index end room
 	
 	public:
-		void	setAnts(int ants_);
-		int		getAnts(void);
+		void	setAnts(int ants_) {ants = ants_;}
+		int		getAnts(void) {return ants;}
 
-		Room	getRoom(int i);
-		Room	&getAddrRoom(int i);
-		int		getIdxStart(void);
-		int		getIdxEnd(void);
-		int		getSizeRooms(void);
-		void	delRoom(int idx);
+		Room	getRoom(int i) {return rooms[i];}
+		Room	&getAddrRoom(int i) {return rooms[i];}
+		int		getIdxStart(void) const {if (start == -1) ErrorExit("No START-room"); 
+					return start;}
+		int		getIdxEnd(void) const {if (end == -1) ErrorExit("No END-room"); 
+					return end;}
+		int		getSizeRooms(void) {return rooms.size();}
+		void	delRoom(int idx) {this->rooms.erase(this->rooms.begin() + idx);}
 
-		void	addRoom(Room room, int param);
+		void	addRoom(Room room, int param) {
+			rooms.push_back(room);
+			if (param == 1)
+				start = rooms.size() - 1;
+			else if (param == -1)
+				end = rooms.size() - 1;
+			}
 
-		int		getIdxRoomByName(string name);
+		int		getIdxRoomByName(string name)
+		{
+			int i;
+			for (i=0; i<rooms.size(); i++)
+			 	if (rooms[i].getName() == name)
+			 		return i;
+			return int(-1);
+		}
 };
+
 
 class FileReader
 {
@@ -128,12 +144,27 @@ class FileReader
 		vector<string>	file_text;
 
 	public:
-		FileReader(string filename);
+		FileReader(string filename)
+		{	
+			string buffer;
+			ifstream ReadFile(filename);
+			while (getline (ReadFile, buffer)) {
+				file_text.push_back(buffer);
+			}
+			ReadFile.close();
+		}
 
-		string	getValue(int i);
-		int		getSizeVec(void);
-		void	print_input(void);
+		string	getValue(int i) {return (file_text[i]);}
+		int		getSizeVec(void) {return (file_text.size());}
+		void	print_input(void) {
+			int	i;
+
+			for (i=0; i<file_text.size(); i++)
+				cout << file_text[i] << endl;
+			cout << endl;
+		}
 };
+
 
 
 #endif
