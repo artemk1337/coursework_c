@@ -18,16 +18,16 @@ class Neigh
 		int global_exist = 1;
 
 	public:
-		Neigh(int num_next_room);
+		Neigh(int num_next_room) {this->idx_next_room = num_next_room;}
 
-		int		getIdxNextRoom(void);
-		void	setIdxNextRoom(int idx_next_room);
-		int		getWeight(void);
-		void	setWeight(int weight);
-		int		getExist(void);
-		void	setExist(int exist);
-		int		getGlobalExist(void);
-		void	setGlobalExist(int global_exist);
+		int		getIdxNextRoom(void) const {return idx_next_room;}
+		void	setIdxNextRoom(int idx_next_room) {this->idx_next_room = idx_next_room;}
+		int		getWeight(void) const {return weight;}
+		void	setWeight(int weight) {this->weight = weight;}
+		int		getExist(void) const {return exist;}
+		void	setExist(int exist) {this->exist = exist;}
+		int		getGlobalExist(void) const {return global_exist;}
+		void	setGlobalExist(int global_exist) {this->global_exist = global_exist;}
 };
 
 
@@ -137,7 +137,6 @@ class Lemin: public Solutions
 		}
 };
 
-
 class FileReader
 {
 	private:
@@ -164,7 +163,5 @@ class FileReader
 			cout << endl;
 		}
 };
-
-
 
 #endif
