@@ -25,6 +25,29 @@ void	print_rooms(void);
 void	print_ants(void);
 void	prints_sol(int tmp, int best);
 
+// main_alg.cpp
+void	alg();
+
+// compare_ways_and_move_ants.cpp
+void	compare_ways();
+int		move_ants(vector<vector<int>> sol, int print, int show_step);
+void	sort_ways();
+
+void	repair_all_rooms();
+int		create_solution_and_split_rooms();
+int		create_solution_and_split_rooms();
+void	split_room(int idx_curr, int idx_prev, int idx_next);
+void	BellmanFord();
+void	update_links();
+void	update_min_weight_and_prev_room();
+void	createRoom(string s, int param);
+void	createNeigh(string s);
+
+FileReader	read_file(string filename);
+vector<string>	spliter_(string s, char delim, vector<string> &elems);
+vector<string>	spliter(string s, char delim);
+
+
 
 # include "classes.h"
 extern Lemin g_lemin;
