@@ -71,3 +71,55 @@ void	prints_sol(int tmp=0, int best=1)
 	}
 	cout << endl;
 }
+
+// <===== Разделение на подстроки =====> //
+vector<string>	spliter_(string s, char delim, vector<string> &elems) {
+    stringstream ss(s);
+    string item;
+    while (getline(ss, item, delim)) {
+        if (item.length() > 0) {
+            elems.push_back(item);  
+        }
+    }
+    return elems;
+}
+
+vector<string>	spliter(string s, char delim) {
+    vector<string> elems;
+    spliter_(s, delim, elems);
+    return elems;
+}
+
+
+// <========== Обновление весов и предыдущих комнат ==========> //
+void	update_min_weight_and_prev_room(void)
+{
+	int i;
+	Room *tmproom;
+	for (i=0; i<g_lemin.getSizeRooms(); i++)
+	{
+		tmproom = &g_lemin.getAddrRoom(i);
+		if (g_lemin.getIdxStart() != i)
+			tmproom->setMinWeight(INT_MAX / 2);
+		else
+			tmproom->setMinWeight(0);
+		tmproom->setPrevRoomIdx(-1);
+	}
+}
+
+
+// <========== Обновление весов связей + существование ==========> //
+void	update_links(void)
+{
+	int i, ii;
+
+	for (i=0; i<g_lemin.getSizeRooms(); i++)
+	{
+		for (ii=0; ii<g_lemin.getRoom(i).getNeighsSize(); ii++)
+		{
+			g_lemin.getAddrRoom(i).getAddrNeigh(ii).setWeight(1);
+			g_lemin.getAddrRoom(i).getAddrNeigh(ii).setExist(1);
+		}
+	}
+}
+
