@@ -229,15 +229,6 @@ void	prints_sol(void)
 // <========== TESTs ==========> //
 
 
-
-
-
-
-
-
-
-
-
 // <===== Считывание из файла =====> //
 
 class FileReader
@@ -258,9 +249,19 @@ class FileReader
 
 		string	getValue(int i) {return (file_text[i]);}
 		int		getSizeVec(void) {return (file_text.size());}
+		void	print_input(void) {
+			int	i;
+
+			for (i=0; i<file_text.size(); i++)
+				cout << file_text[i] << endl;
+			cout << endl;
+		}
 };
 
 // <===== Считывание из файла =====> //
+
+
+
 
 
 
@@ -332,7 +333,7 @@ void	createNeigh(string s)
 
 // <========== Считывание файла ==========> //
 
-void	read_file(string filename)
+FileReader	read_file(string filename)
 {
 	int i = 0;
 	int k = 0;
@@ -358,6 +359,7 @@ void	read_file(string filename)
 			start_finish = 0;
 		}
 	}
+	return (fread);
 }
 
 // <========== Считывание файла ==========> //
@@ -633,7 +635,7 @@ void	sort_ways(){
 	*/
 }
 
-int		move_ants(vector<vector<int>> sol){
+int		move_ants(vector<vector<int>> sol, int print=1, int show_step=0){
 	int	i, ii;
 	int	steps = 0;
 	int	len_ways[sol.size() + 1];
@@ -657,23 +659,36 @@ int		move_ants(vector<vector<int>> sol){
 	g_lemin.getAddrRoom(g_lemin.getIdxStart()).setNumAnt(g_lemin.getAnts());
 	g_lemin.getAddrRoom(g_lemin.getIdxEnd()).setNumAnt(0);
 	while (g_lemin.getAddrRoom(g_lemin.getIdxEnd()).getNumAnt() != g_lemin.getAnts()){
-		// пробегаюсь списку путей
+		// пробегаюсь по списку путей
 		for (i=0; i<sol.size(); i++)
 		{
-			// пробегаюсь по пути от конца до начала
+			// пробегаюсь по пути от конца до начала и переношу муравьев
 			for (ii=sol[i].size() - 1; ii>0; ii--)
 			{
+				// проверка условия отправки муравья из старта
 				if (ii == 1 && dist_ways[i] > g_lemin.getRoom(g_lemin.getIdxStart()).getNumAnt())
 					break ;
 				if (g_lemin.getRoom(sol[i][ii - 1]).getNumAnt() > 0)
 				{
-					g_lemin.getAddrRoom(sol[i][ii - 1]).setNumAnt(g_lemin.getRoom(sol[i][ii - 1]).getNumAnt() - 1);
-					g_lemin.getAddrRoom(sol[i][ii]).setNumAnt(g_lemin.getRoom(sol[i][ii]).getNumAnt() + 1);
+					tmp = g_lemin.getRoom(sol[i][ii - 1]).getNumAnt();
+					if (ii == 1)
+						g_lemin.getAddrRoom(sol[i][ii - 1]).setNumAnt(g_lemin.getRoom(sol[i][ii - 1]).getNumAnt() - 1);
+					else
+						g_lemin.getAddrRoom(sol[i][ii - 1]).setNumAnt(0);
+					if (ii == sol[i].size() - 1)
+						g_lemin.getAddrRoom(sol[i][ii]).setNumAnt(g_lemin.getRoom(sol[i][ii]).getNumAnt() + 1);
+					else
+						g_lemin.getAddrRoom(sol[i][ii]).setNumAnt(tmp);
+					if (print)
+						cout << "L" << abs(tmp - (g_lemin.getAnts() + 1)) << "-" << g_lemin.getRoom(sol[i][ii]).getName() << " ";
 				}
 			}
 		}
-		//cout << g_lemin.getAddrRoom(g_lemin.getIdxEnd()).getNumAnt() << endl;
 		steps++;
+		if (show_step)
+			cout << "\t| step " << steps;
+		if (print)
+			cout << endl;
 	}
 	g_lemin.getAddrRoom(g_lemin.getIdxStart()).setNumAnt(g_lemin.getAnts());
 	g_lemin.getAddrRoom(g_lemin.getIdxEnd()).setNumAnt(0);
@@ -685,11 +700,8 @@ void	compare_ways(){
 	int	ants;
 
 	sort_ways();
-
-	//move_ants(g_lemin.getAllTmpWays());
-	//exit(0);
-
-	if (g_lemin.getSizeBestSol() == 0 || move_ants(g_lemin.getAllBestWays()) > move_ants(g_lemin.getAllTmpWays()))
+	if (g_lemin.getSizeBestSol() == 0 ||
+		move_ants(g_lemin.getAllBestWays(), 0) > move_ants(g_lemin.getAllTmpWays(), 0))
 	{
 		g_lemin.clearBestSol();
 		for (i=0; i<g_lemin.getSizeTmpSol(); i++)
@@ -725,7 +737,7 @@ void	alg(void)
 			// если путей больше не существует, останавливаем алгоритм
 			if (g_lemin.getRoom(g_lemin.getIdxEnd()).getPrevRoomIdx() == -1)
 			{
-				cout << "No ways anymore" << endl;
+				// cout << "No ways anymore" << endl;
 				return;
 			}
 			if (!create_solution_and_split_rooms())
@@ -740,12 +752,14 @@ void	alg(void)
 		}
 		// сравнение путей; если новые пути лучше, используем их вместо старых
 		compare_ways();
-		prints_sol();
+		// prints_sol();
 	}
 }
 
 
 int main(int argc, char** argv) {
-	read_file("gemerald");
+	FileReader fread = read_file("example1");
+	fread.print_input();
 	alg();
+	move_ants(g_lemin.getAllBestWays(), 1, 1);
 }
