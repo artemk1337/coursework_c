@@ -147,6 +147,7 @@ class FileReader
 		{	
 			string buffer;
 			ifstream ReadFile(filename);
+			if (ReadFile.fail()) {ErrorExit("Not valid map!");}
 			while (getline (ReadFile, buffer)) {
 				file_text.push_back(buffer);
 			}
