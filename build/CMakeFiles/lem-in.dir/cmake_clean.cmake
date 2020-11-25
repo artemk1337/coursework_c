@@ -1,5 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/lem-in.dir/main.cpp.o"
+  "CMakeFiles/lem-in.dir/src/main.cpp.o"
+  "CMakeFiles/lem-in.dir/src/split_str.cpp.o"
+  "CMakeFiles/lem-in.dir/src/utils.cpp.o"
   "lem-in.pdb"
   "lem-in"
 )

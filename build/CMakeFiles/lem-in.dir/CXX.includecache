@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/lem-in.h
+climits
+-
+iostream
+-
+fstream
+-
+vector
+-
+regex
+-
+
+/home/runner/leminc/src/main.cpp
+lem-in.h
+/home/runner/leminc/src/lem-in.h
+
+/home/runner/leminc/src/split_str.cpp
+
+/home/runner/leminc/src/utils.cpp
+lem-in.h
+/home/runner/leminc/src/lem-in.h
+

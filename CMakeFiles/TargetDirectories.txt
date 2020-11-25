@@ -1,5 +1,0 @@
-/home/runner/leminc/CMakeFiles/rebuild_cache.dir
-/home/runner/leminc/CMakeFiles/lem-in.dir
-/home/runner/leminc/CMakeFiles/edit_cache.dir
-/home/runner/leminc/src/CMakeFiles/rebuild_cache.dir
-/home/runner/leminc/src/CMakeFiles/edit_cache.dir
