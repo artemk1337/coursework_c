@@ -6,6 +6,10 @@
 
 #IncludeRegexTransform: 
 
+../include/classes.h
+lem-in.h
+../include/lem-in.h
+
 ../include/lem-in.h
 climits
 -
@@ -17,6 +21,12 @@ vector
 -
 regex
 -
+classes.h
+../include/classes.h
+
+/home/runner/leminc/src/classes.cpp
+lem-in.h
+/home/runner/leminc/src/lem-in.h
 
 /home/runner/leminc/src/main.cpp
 lem-in.h

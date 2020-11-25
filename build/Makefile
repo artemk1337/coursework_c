@@ -123,6 +123,33 @@ lem-in/fast:
 	$(MAKE) -f CMakeFiles/lem-in.dir/build.make CMakeFiles/lem-in.dir/build
 .PHONY : lem-in/fast
 
+src/classes.o: src/classes.cpp.o
+
+.PHONY : src/classes.o
+
+# target to build an object file
+src/classes.cpp.o:
+	$(MAKE) -f CMakeFiles/lem-in.dir/build.make CMakeFiles/lem-in.dir/src/classes.cpp.o
+.PHONY : src/classes.cpp.o
+
+src/classes.i: src/classes.cpp.i
+
+.PHONY : src/classes.i
+
+# target to preprocess a source file
+src/classes.cpp.i:
+	$(MAKE) -f CMakeFiles/lem-in.dir/build.make CMakeFiles/lem-in.dir/src/classes.cpp.i
+.PHONY : src/classes.cpp.i
+
+src/classes.s: src/classes.cpp.s
+
+.PHONY : src/classes.s
+
+# target to generate assembly for a file
+src/classes.cpp.s:
+	$(MAKE) -f CMakeFiles/lem-in.dir/build.make CMakeFiles/lem-in.dir/src/classes.cpp.s
+.PHONY : src/classes.cpp.s
+
 src/main.o: src/main.cpp.o
 
 .PHONY : src/main.o
@@ -213,6 +240,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... lem-in"
 	@echo "... edit_cache"
+	@echo "... src/classes.o"
+	@echo "... src/classes.i"
+	@echo "... src/classes.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
