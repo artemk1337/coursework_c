@@ -200,28 +200,30 @@ void	print_rooms(void)
 	cout << endl;
 }
 
-void	print_ants(void)
-{
+void	print_ants(void){
 	cout << "Ants: " << g_lemin.getAnts() << '\n' << endl;
 }
 
-void	prints_sol(void)
+void	prints_sol(int tmp=0, int best=1)
 {
 	int i, k;
 
-	cout << "\nBest sol:" << endl;
-	for (i=0; i<g_lemin.getSizeBestSol(); i++)
-	{
-		for (k=0; k<g_lemin.getOneBestWay(i).size(); k++)
-			cout << g_lemin.getRoom(g_lemin.getOneBestWay(i)[k]).getName() << '-';
-		cout << endl;
+	if (best){
+		cout << "\nBest sol:" << endl;
+		for (i=0; i<g_lemin.getSizeBestSol(); i++){
+			for (k=0; k<g_lemin.getOneBestWay(i).size(); k++)
+				cout << g_lemin.getRoom(g_lemin.getOneBestWay(i)[k]).getName() << '-';
+			cout << endl;
+		}
 	}
-	cout << "\nTmp sol:" << endl;
-	for (i=0; i<g_lemin.getSizeTmpSol(); i++)
-	{
-		for (k=0; k<g_lemin.getOneTmpWay(i).size(); k++)
-			cout << g_lemin.getRoom(g_lemin.getOneTmpWay(i)[k]).getName() << '-';
-		cout << endl;
+	if (tmp){
+		cout << "\nTmp sol:" << endl;
+		for (i=0; i<g_lemin.getSizeTmpSol(); i++)
+		{
+			for (k=0; k<g_lemin.getOneTmpWay(i).size(); k++)
+				cout << g_lemin.getRoom(g_lemin.getOneTmpWay(i)[k]).getName() << '-';
+			cout << endl;
+		}
 	}
 	cout << endl;
 }
@@ -350,6 +352,8 @@ FileReader	read_file(string filename)
 			start_finish = 1;
 		else if (fread.getValue(i) == "##end")
 			start_finish = -1;
+		else if (fread.getValue(i)[0] == '#')
+			continue ;
 		else
 		{
 			if (fread.getValue(i).find(" ") != string::npos)
@@ -359,6 +363,7 @@ FileReader	read_file(string filename)
 			start_finish = 0;
 		}
 	}
+	// cout << 111 << endl;
 	return (fread);
 }
 
@@ -752,14 +757,15 @@ void	alg(void)
 		}
 		// сравнение путей; если новые пути лучше, используем их вместо старых
 		compare_ways();
-		// prints_sol();
+		// prints_sol(1, 1);
 	}
 }
 
 
 int main(int argc, char** argv) {
-	FileReader fread = read_file("example1");
+	FileReader fread = read_file("maps_example/subject-5.map");
 	fread.print_input();
 	alg();
+	prints_sol(0, 1);
 	move_ants(g_lemin.getAllBestWays(), 1, 1);
 }
