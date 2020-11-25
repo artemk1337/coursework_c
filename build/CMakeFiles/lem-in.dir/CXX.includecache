@@ -24,8 +24,6 @@ regex
 classes.h
 ../include/classes.h
 
-/home/runner/leminc/src/classes.cpp
-
 /home/runner/leminc/src/main.cpp
 lem-in.h
 /home/runner/leminc/src/lem-in.h
