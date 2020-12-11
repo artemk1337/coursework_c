@@ -1,6 +1,7 @@
 #include "lem-in.h"
 
 // <========== Раздваивание комнат с переносом связей ==========> //
+
 void	split_room(int idx_curr, int idx_prev, int idx_next)
 {
 	stringstream	name;
@@ -60,7 +61,8 @@ void	split_room(int idx_curr, int idx_prev, int idx_next)
 }
 
 
-// <========== Создание решение и прокладывание пути ==========> //
+// <========== Создание решения и прокладывание пути ==========> //
+
 int		create_solution_and_split_rooms()
 {
 	int			idx;
@@ -98,6 +100,7 @@ int		create_solution_and_split_rooms()
 
 
 // <========== Восстановление комнат с переносом связей ==========> //
+
 void	repair_all_rooms()
 {
 	int		idx, i, ii, idx_in, idx_prev, idx_neigh, exist;

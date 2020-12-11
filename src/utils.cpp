@@ -1,5 +1,7 @@
 #include "lem-in.h"
 
+
+// выход с ошибкой
 void	ErrorExit(string msg)
 {
 	cout << "ERROR: " << msg << endl;
@@ -72,7 +74,9 @@ void	prints_sol(int tmp=0, int best=1)
 	cout << endl;
 }
 
+
 // <===== Разделение на подстроки =====> //
+
 vector<string>	spliter_(string s, char delim, vector<string> &elems) {
     stringstream ss(s);
     string item;
@@ -92,6 +96,7 @@ vector<string>	spliter(string s, char delim) {
 
 
 // <========== Обновление весов и предыдущих комнат ==========> //
+
 void	update_min_weight_and_prev_room(void)
 {
 	int i;
@@ -109,6 +114,7 @@ void	update_min_weight_and_prev_room(void)
 
 
 // <========== Обновление весов связей + существование ==========> //
+
 void	update_links(void)
 {
 	int i, ii;

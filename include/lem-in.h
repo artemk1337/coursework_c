@@ -53,9 +53,8 @@ void		createNeigh(string s);
 FileReader	read_file(string filename);
 
 
-
-
 # include "classes.h"
+
 extern Lemin g_lemin;
 
 #endif
