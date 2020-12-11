@@ -1,5 +1,6 @@
 #include "lem-in.h"
 
+
 // сортировка путей
 void	sort_ways(){
 	if (g_lemin.getSizeTmpSol() > 1)
@@ -10,6 +11,7 @@ void	sort_ways(){
 	*/
 }
 
+// перемещение муравьев по комнатам
 int		move_ants(vector<vector<int>> sol, int print=1, int show_step=0){
 	int	i, ii;
 	int	steps = 0;
@@ -70,6 +72,7 @@ int		move_ants(vector<vector<int>> sol, int print=1, int show_step=0){
 	return steps;
 }
 
+// сравнение путей
 void	compare_ways()
 {
 	int	i;

@@ -1,5 +1,6 @@
 #include "lem-in.h"
 
+// Алгоритм Беллмана-Форда
 void	BellmanFord(void)
 {
 	int i, iisrc, n;

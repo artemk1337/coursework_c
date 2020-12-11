@@ -1,5 +1,7 @@
 #include "lem-in.h"
 
+
+// Основной алгоритм
 void	alg(void)
 {
 	int	expect_ways, ways;

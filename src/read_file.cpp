@@ -1,6 +1,7 @@
 #include "lem-in.h"
 
 // <===== Создание комнат и соседей =====> //
+
 void	createRoom(string s, int param)
 {
 	vector<string>	words;
@@ -37,6 +38,7 @@ void	createNeigh(string s)
 
 
 // <========== Считывание файла ==========> //
+
 FileReader	read_file(string filename)
 {
 	int i = 0;
