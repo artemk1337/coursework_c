@@ -6,10 +6,10 @@ void	createRoom(string s, int param)
 {
 	vector<string>	words;
 
-	// Split string line on words
+	// Разделить строку на слова
 	words = spliter(s, ' ');
 	if (words.size() != 3) {ErrorExit("Not valid string line with ` `");}
-	// Add new room
+	// Добавить новую комнату
 	g_lemin.addRoom(Room(words[0]), param);
 }
 
@@ -20,14 +20,14 @@ void	createNeigh(string s)
 	int				idx1;
 	int				idx2;
 
-	// Split string line on words
+	// Разделить строку на слова
 	words = spliter(s, '-');
 	if (words.size() != 2) {ErrorExit("Not valid string line with `-`");}
 
-	// Find idx rooms
+	// Поиск индекса комнаты по названию
 	idx1 = g_lemin.getIdxRoomByName(words[0]);
 	idx2 = g_lemin.getIdxRoomByName(words[1]);
-	// Add new neighbours
+	// Добавить нового соседа
 	if (idx1 != -1 && idx2 != -1) {
 		g_lemin.getAddrRoom(idx1).addNeigh(idx2);
 		g_lemin.getAddrRoom(idx2).addNeigh(idx1);
