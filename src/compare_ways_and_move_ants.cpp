@@ -15,14 +15,13 @@ void	sort_ways(){
 int		move_ants(vector<vector<int>> sol, int print=1, int show_step=0){
 	int	i, ii;
 	int	steps = 0;
-	int	len_ways[sol.size() + 1];
-	int	dist_ways[sol.size() + 1];
+	int*	len_ways = new int[sol.size() + 1];
+	int*	dist_ways = new int[sol.size() + 1];
 	int	tmp = 0;
-	int	ants;
 
 	if (sol.size() > 0)
 		for (i=0; i<sol.size(); i++)
-			len_ways[i] = sol[i].size();
+			len_ways[i] = int(sol[i].size());
 	else
 		return (0);
 
@@ -40,18 +39,18 @@ int		move_ants(vector<vector<int>> sol, int print=1, int show_step=0){
 		for (i=0; i<sol.size(); i++)
 		{
 			// пробегаюсь по пути от конца до начала и переношу муравьев
-			for (ii=sol[i].size() - 1; ii>0; ii--)
+			for (ii=int(sol[i].size()) - 1; ii>0; ii--)
 			{
 				// проверка условия отправки муравья из старта
 				if (ii == 1 && dist_ways[i] > g_lemin.getRoom(g_lemin.getIdxStart()).getNumAnt())
 					break ;
-				if (g_lemin.getRoom(sol[i][ii - 1]).getNumAnt() > 0)
+				if (g_lemin.getRoom(sol[i][static_cast<__int64>(ii) - 1]).getNumAnt() > 0)
 				{
-					tmp = g_lemin.getRoom(sol[i][ii - 1]).getNumAnt();
+					tmp = g_lemin.getRoom(sol[i][static_cast<__int64>(ii) - 1]).getNumAnt();
 					if (ii == 1)
-						g_lemin.getAddrRoom(sol[i][ii - 1]).setNumAnt(g_lemin.getRoom(sol[i][ii - 1]).getNumAnt() - 1);
+						g_lemin.getAddrRoom(sol[i][static_cast<__int64>(ii) - 1]).setNumAnt(g_lemin.getRoom(sol[i][static_cast<__int64>(ii) - 1]).getNumAnt() - 1);
 					else
-						g_lemin.getAddrRoom(sol[i][ii - 1]).setNumAnt(0);
+						g_lemin.getAddrRoom(sol[i][static_cast<__int64>(ii) - 1]).setNumAnt(0);
 					if (ii == sol[i].size() - 1)
 						g_lemin.getAddrRoom(sol[i][ii]).setNumAnt(g_lemin.getRoom(sol[i][ii]).getNumAnt() + 1);
 					else
@@ -76,7 +75,6 @@ int		move_ants(vector<vector<int>> sol, int print=1, int show_step=0){
 void	compare_ways()
 {
 	int	i;
-	int	ants;
 
 	sort_ways();
 	if (g_lemin.getSizeBestSol() == 0 ||

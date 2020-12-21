@@ -3,6 +3,7 @@
 
 # include <climits>
 # include <iostream>
+# include <sstream>
 # include <fstream>
 # include <vector>
 # include <regex>

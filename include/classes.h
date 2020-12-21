@@ -63,7 +63,7 @@ class Room
 
 		Neigh	getNeigh(int i) {return neighs[i];}
 		Neigh	&getAddrNeigh(int i) {return neighs[i];}
-		int		getNeighsSize(void) const {return neighs.size();}
+		size_t	getNeighsSize(void) const {return neighs.size();}
 
 		Room(string name)
 		{
@@ -81,12 +81,12 @@ class Solutions
 		vector<vector<int>>	tmp_sol;
 	
 	public:
-		int			getSizeBestSol(void) const {return best_sol.size();}
+		size_t		getSizeBestSol(void) const {return best_sol.size();}
 		vector<int>	getOneBestWay(int idx) const {return best_sol[idx];}
 		vector<vector<int>>	&getAddrAllBestWays() {return best_sol;}
 		vector<vector<int>>	getAllBestWays() {return best_sol;}
 
-		int			getSizeTmpSol(void) const {return tmp_sol.size();}
+		size_t		getSizeTmpSol(void) const {return tmp_sol.size();}
 		vector<int>	getOneTmpWay(int idx) const {return tmp_sol[idx];}
 		vector<vector<int>>	&getAddrAllTmpWays() {return tmp_sol;}
 		vector<vector<int>>	getAllTmpWays() {return tmp_sol;}
@@ -116,15 +116,15 @@ class Lemin: public Solutions
 					return start;}
 		int		getIdxEnd(void) const {if (end == -1) ErrorExit("No END-room"); 
 					return end;}
-		int		getSizeRooms(void) {return rooms.size();}
+		size_t	getSizeRooms(void) {return rooms.size();}
 		void	delRoom(int idx) {this->rooms.erase(this->rooms.begin() + idx);}
 
 		void	addRoom(Room room, int param) {
 			rooms.push_back(room);
 			if (param == 1)
-				start = rooms.size() - 1;
+				start = int(rooms.size()) - 1;
 			else if (param == -1)
-				end = rooms.size() - 1;
+				end = int(rooms.size()) - 1;
 			}
 
 		int		getIdxRoomByName(string name)
@@ -155,7 +155,7 @@ class FileReader
 		}
 
 		string	getValue(int i) {return (file_text[i]);}
-		int		getSizeVec(void) {return (file_text.size());}
+		size_t	getSizeVec(void) {return (file_text.size());}
 		void	print_input(void) {
 			int	i;
 

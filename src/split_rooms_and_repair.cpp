@@ -10,9 +10,9 @@ void	split_room(int idx_curr, int idx_prev, int idx_next)
 
 	name << g_lemin.getRoom(idx_curr).getName() << "_in";
 	g_lemin.addRoom(Room(name.str()), 0);
-	g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).setPrevRoomIdx(idx_prev);
-	g_lemin.getAddrRoom(idx_curr).setIdxIn(g_lemin.getSizeRooms()-1);
-	g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).setIdxOut(idx_curr);
+	g_lemin.getAddrRoom(int(g_lemin.getSizeRooms())-1).setPrevRoomIdx(idx_prev);
+	g_lemin.getAddrRoom(idx_curr).setIdxIn(int(g_lemin.getSizeRooms())-1);
+	g_lemin.getAddrRoom(int(g_lemin.getSizeRooms())-1).setIdxOut(idx_curr);
 
 	for (i=0; i<g_lemin.getRoom(idx_curr).getNeighsSize(); i++)
 	{
@@ -56,8 +56,8 @@ void	split_room(int idx_curr, int idx_prev, int idx_next)
 			neigh_from_neigh->setWeight(-1);
 		}
 	}
-	g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).addNeigh(idx_prev);
-	g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).getAddrNeigh(g_lemin.getAddrRoom(g_lemin.getSizeRooms()-1).getNeighsSize()-1).setWeight(-1);
+	g_lemin.getAddrRoom(int(g_lemin.getSizeRooms())-1).addNeigh(idx_prev);
+	g_lemin.getAddrRoom(int(g_lemin.getSizeRooms())-1).getAddrNeigh(int(g_lemin.getAddrRoom(int(g_lemin.getSizeRooms())-1).getNeighsSize())-1).setWeight(-1);
 }
 
 
@@ -103,7 +103,7 @@ int		create_solution_and_split_rooms()
 
 void	repair_all_rooms()
 {
-	int		idx, i, ii, idx_in, idx_prev, idx_neigh, exist;
+	int		i, ii, idx_in, idx_prev, idx_neigh, exist;
 
 	ii = -1;
 	while (++ii<g_lemin.getSizeRooms() && g_lemin.getRoom(ii).getIdxOut() == -1)
